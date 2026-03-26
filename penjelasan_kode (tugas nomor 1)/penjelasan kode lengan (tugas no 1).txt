@@ -1,0 +1,45 @@
+1. Struktur Data dan Inisialisasi
+
+    - Variabel Statis: Kode mendeklarasikan dua variabel integer, shoulder dan elbow, yang diinisialisasi dengan nilai 0 . Variabel ini menyimpan besarnya sudut rotasi untuk sendi bahu dan siku .
+
+    - Fungsi init(): Mengatur warna latar belakang menjadi hitam (0.0, 0.0, 0.0) dan menentukan model pencahayaan/arsiran menggunakan GL_FLAT .
+
+2. Mekanisme Hierarki (Transformasi Matriks)
+
+	Fungsi display() adalah inti dari pergerakan ini. Kode menggunakan sistem Matrix Stack (glPushMatrix dan glPopMatrix) untuk mengatur hubungan antara bagian lengan.
+	A. Pergerakan Bahu (Induk)
+
+    	- Translasi Awal: Lengan digeser ke titik (−1.0,0.0,0.0) untuk menentukan titik tumpu rotasi.
+
+    	- Rotasi Bahu: Fungsi glRotatef memutar seluruh sistem koordinat berdasarkan nilai variabel shoulder pada sumbu z.
+	
+   	- Translasi Balik: Posisi dikembalikan ke (1.0,0.0,0.0) sehingga rotasi terjadi tepat di ujung balok (engsel), bukan di tengahnya.
+
+    	- Visualisasi Lengan Atas: Sebuah glutWireCube(1.0) diskalakan menjadi lebih panjang menggunakan glScalef(2.0, 0.4, 1.0) agar terlihat seperti batang lengan.
+
+B. Pergerakan Siku (Anak)
+
+    - Pewarisan: Karena blok siku berada di dalam glPushMatrix() bahu, maka setiap gerakan pada bahu akan otomatis menggerakkan siku.
+
+    - Mekanisme Serupa: Siku memiliki urutan translasi-rotasi-translasi yang sama dengan bahu untuk menentukan titik tumpu rotasinya sendiri pada ujung lengan atas.
+
+    - Visualisasi Lengan Bawah: Balok kedua digambar dengan ukuran skala yang sama dengan lengan atas.
+
+3. Interaksi Keyboard dan Pembaruan Layar
+
+   Cara benda digerakkan adalah melalui perhitungan yang merespon input keyboard pengguna.
+	Tombol	Fungsi Kerja	               Kode Operasi
+	's'	      Putar bahu searah jarum jam	   (shoulder + 5) % 360
+	'S'	      Putar bahu berlawanan jarum jam  (shoulder - 5) % 360
+	'e'	      Putar siku searah jarum jam	   (elbow + 5) % 360
+	'E'	      Putar siku berlawanan jarum jam  (elbow - 5) % 360
+
+Setiap kali tombol ditekan, fungsi glutPostRedisplay() dipanggil . Fungsi ini memberitahu OpenGL untuk menggambar ulang layar agar perubahan sudut terbaru segera ditampilkan secara visual.
+
+4. Proyeksi dan Tampilan Jendela
+
+    - gluPerspective: Mengatur sudut pandang sebesar 65 derajat agar objek terlihat dalam perspektif 3D (makin jauh makin kecil).
+
+    - glTranslatef(0.0, 0.0, -5.0): Digunakan dalam fungsi reshape untuk memundurkan kamera sejauh 5 unit agar objek lengan tidak menempel di "depan mata" kamera dan terlihat utuh di layar.
+
+    - glutSwapBuffers(): Mengganti buffer gambar lama dengan gambar baru hasil rotasi secara halus untuk menghindari efek berkedip.
